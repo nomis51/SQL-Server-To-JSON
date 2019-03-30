@@ -1,8 +1,0 @@
-C:\VSProjects\DB JSON Extractor\DB JSON Extractor\obj\Debug\DB JSON Extractor.csprojResolveAssemblyReference.cache
-C:\VSProjects\DB JSON Extractor\DB JSON Extractor\bin\Debug\DB JSON Extractor.exe.config
-C:\VSProjects\DB JSON Extractor\DB JSON Extractor\bin\Debug\DB JSON Extractor.exe
-C:\VSProjects\DB JSON Extractor\DB JSON Extractor\bin\Debug\DB JSON Extractor.pdb
-C:\VSProjects\DB JSON Extractor\DB JSON Extractor\bin\Debug\Newtonsoft.Json.dll
-C:\VSProjects\DB JSON Extractor\DB JSON Extractor\bin\Debug\Newtonsoft.Json.xml
-C:\VSProjects\DB JSON Extractor\DB JSON Extractor\obj\Debug\DB JSON Extractor.exe
-C:\VSProjects\DB JSON Extractor\DB JSON Extractor\obj\Debug\DB JSON Extractor.pdb

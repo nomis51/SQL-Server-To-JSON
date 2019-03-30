@@ -25,8 +25,20 @@ namespace SQLServerToJSON {
         /// </summary>
         public void Run() {
             Logger.Write("Starting...");
+
+            string folder = DateTime.Now.ToString("yyyy-MM-dd hh-mm-ss");
+
+            if (!Directory.Exists(".\\output")) {
+                Directory.CreateDirectory(".\\output");
+            }
+
+
+            if (!Directory.Exists(".\\output\\" + folder)) {
+                Directory.CreateDirectory(".\\output\\" + folder);
+            }
+
             foreach (string name in GetTablesName()) {
-                WriteDataToJsonFile(name, GetTableColumnNames(name), GetTableData(name));
+                WriteDataToJsonFile(name, folder, GetTableColumnNames(name), GetTableData(name));
             }
             Logger.Write("Ending...");
         }
@@ -37,8 +49,10 @@ namespace SQLServerToJSON {
         /// <param name="datatype">String data type received from SQL Server</param>
         /// <param name="data">String data received from SQL Server</param>
         /// <returns></returns>
-        private object FormatData(string datatype, string data) {
-            if (datatype == "int") {
+        private object FormatData(string datatype, object data) {
+            return data;
+
+            /*if (datatype == "int") {
                 return Convert.ToInt32(data);
             } else if (datatype == "bit") {
                 return Convert.ToBoolean(data);
@@ -46,7 +60,7 @@ namespace SQLServerToJSON {
                 return DateTime.Parse(data).ToString();
             } else {
                 return data;
-            }
+            }*/
         }
 
         /// <summary>
@@ -55,9 +69,10 @@ namespace SQLServerToJSON {
         /// <param name="tableName">SQL data table. (It will be the name of the file)</param>
         /// <param name="columns">List of the SQL data table columns.</param>
         /// <param name="dataRows">List of SQL data rows.</param>
-        private void WriteDataToJsonFile(string tableName, List<string[]> columns, List<List<string>> dataRows) {
+        private void WriteDataToJsonFile(string tableName, string dateFolder, List<string[]> columns, List<List<object>> dataRows) {
             Logger.Write("Writing JSON file for " + tableName + "...");
             List<Dictionary<string, object>> jsonData = new List<Dictionary<string, object>>();
+
             foreach (var row in dataRows) {
                 Dictionary<string, object> jsonObj = new Dictionary<string, object>();
                 for (int i = 0; i < row.Count; ++i) {
@@ -67,12 +82,8 @@ namespace SQLServerToJSON {
                 jsonData.Add(jsonObj);
             }
 
-            if (!Directory.Exists(".\\output")) {
-                Directory.CreateDirectory(".\\output");
-            }
-
-            File.AppendAllText(".\\output\\" + tableName + ".json", JsonConvert.SerializeObject(jsonData), Encoding.UTF8);
-            Logger.Write(".\\output\\" + tableName + ".json created!");
+            File.AppendAllText(".\\output\\" + dateFolder + "\\" + dateFolder + "_" + tableName + ".json", JsonConvert.SerializeObject(jsonData), Encoding.UTF8);
+            Logger.Write(".\\output\\" + dateFolder + "\\" + dateFolder + "_" + tableName + ".json created!");
         }
 
         /// <summary>
@@ -80,11 +91,11 @@ namespace SQLServerToJSON {
         /// </summary>
         /// <param name="tableName">It will be the data of this data table.</param>
         /// <returns></returns>
-        private List<List<string>> GetTableData(string tableName) {
+        private List<List<object>> GetTableData(string tableName) {
             Logger.Write("Retrieving data for " + tableName + "...");
-            List<List<string>> rows = new List<List<string>>();
+            List<List<object>> rows = new List<List<object>>();
             foreach (var datas in this._SQL.Read("SELECT * FROM " + tableName)) {
-                List<string> row = new List<string>();
+                List<object> row = new List<object>();
                 foreach (var data in datas) {
                     row.Add(data);
                 }
@@ -102,7 +113,7 @@ namespace SQLServerToJSON {
             Logger.Write("Retrieving SQL tables name¸...");
             List<string> tablesName = new List<string>();
             foreach (var table in this._SQL.Read("SELECT name FROM sys.Tables")) {
-                tablesName.Add(table[0]);
+                tablesName.Add(table[0].ToString());
             }
             Logger.Write(tablesName.Count + " table(s) found!");
             return tablesName;
@@ -118,8 +129,8 @@ namespace SQLServerToJSON {
             List<string[]> columns = new List<string[]>();
             foreach (var column in this._SQL.Read("SELECT COLUMN_NAME, DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '" + tableName + "'")) {
                 columns.Add(new string[] {
-                    column[0],
-                    column[1]
+                    column[0].ToString(),
+                    column[1].ToString()
                 });
             }
             Logger.Write(columns.Count + " column(s) found!");
@@ -188,8 +199,8 @@ namespace SQLServerToJSON {
             return true;
         }
 
-        public List<List<string>> Read(string query) {
-            List<List<string>> data = new List<List<string>>();
+        public List<List<object>> Read(string query) {
+            List<List<object>> data = new List<List<object>>();
             if (InitializeConnection()) {
                 string q = query.ToUpper();
 
@@ -198,9 +209,9 @@ namespace SQLServerToJSON {
 
                 int count = reader.FieldCount;
                 while (reader.Read()) {
-                    List<string> ls = new List<string>();
+                    List<object> ls = new List<object>();
                     for (int i = 0; i < count; i++) {
-                        ls.Add(reader[i].ToString());
+                        ls.Add(reader[i]);
 
                     }
 
